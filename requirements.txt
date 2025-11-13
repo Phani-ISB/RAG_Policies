@@ -1,0 +1,6 @@
+streamlit
+llama-index
+sentence-transformers
+faiss-cpu
+google-generative-ai
+PyPDF2
