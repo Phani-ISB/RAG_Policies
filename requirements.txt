@@ -2,7 +2,7 @@ streamlit==1.39.0
 llama-index==0.10.30
 sentence-transformers==2.2.2
 faiss-cpu==1.7.4
-google-generative-ai==0.4.0
+google-genai==0.1.0
 PyPDF2==3.0.1
 
 
