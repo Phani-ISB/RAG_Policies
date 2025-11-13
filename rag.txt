@@ -1,0 +1,82 @@
+import os
+import streamlit as st
+from pathlib import Path
+from PyPDF2 import PdfReader
+from llama_index.core import (
+    SimpleDirectoryReader,
+    VectorStoreIndex,
+    StorageContext,
+    load_index_from_storage,
+    Document
+)
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.llms.google import Google
+import tempfile
+
+
+# --- Streamlit Page Config ---
+st.set_page_config(page_title="📚 RAG Chatbot with LlamaIndex + Google API", layout="wide")
+st.title("💬 RAG Chatbot (LlamaIndex + Google Generative AI)")
+st.caption("Upload up to 2 PDFs. Uses FAISS + SentenceTransformers + Google Generative AI for RAG.")
+
+# --- Ensure API key exists ---
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    st.warning("⚠️ GOOGLE_API_KEY not set. Please set it in Streamlit Secrets or Environment Variables.")
+else:
+    os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+
+
+# --- Directory to persist index ---
+INDEX_DIR = Path("./index_store")
+INDEX_DIR.mkdir(exist_ok=True)
+
+
+# --- Helper: Load PDF and create Documents ---
+def load_pdfs(uploaded_files):
+    docs = []
+    for file in uploaded_files:
+        pdf_reader = PdfReader(file)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text() or ""
+        docs.append(Document(text=text, metadata={"source": file.name}))
+    return docs
+
+
+# --- Build or Load Index ---
+def get_or_create_index(docs):
+    if INDEX_DIR.exists() and any(INDEX_DIR.iterdir()):
+        storage_context = StorageContext.from_defaults(persist_dir=str(INDEX_DIR))
+        index = load_index_from_storage(storage_context)
+    else:
+        embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        index = VectorStoreIndex.from_documents(docs, embed_model=embed_model)
+        index.storage_context.persist(persist_dir=str(INDEX_DIR))
+    return index
+
+
+# --- Chat Interface ---
+uploaded_files = st.file_uploader("Upload up to 2 PDF files", type=["pdf"], accept_multiple_files=True)
+if uploaded_files:
+    with st.spinner("📄 Processing and indexing documents..."):
+        docs = load_pdfs(uploaded_files)
+        index = get_or_create_index(docs)
+        st.success("✅ Index built successfully!")
+
+    # --- Google LLM via LlamaIndex ---
+    llm = Google(model="models/text-bison-001", api_key=GOOGLE_API_KEY)
+
+    query_engine = index.as_query_engine(llm=llm, similarity_top_k=3)
+
+    # --- Chat Interface ---
+    st.subheader("💭 Ask a question about your PDFs")
+    user_query = st.text_input("Enter your question:")
+
+    if user_query:
+        with st.spinner("🤔 Generating answer..."):
+            response = query_engine.query(user_query)
+            st.markdown("### 🧠 Answer:")
+            st.write(response.response)
+else:
+    st.info("👆 Please upload 1 or 2 PDFs to start.")
