@@ -31,11 +31,8 @@ st.title("💬 RAG Chatbot (LlamaIndex + Google Generative AI)")
 st.caption("Upload up to 2 PDFs. Uses FAISS + SentenceTransformers + Google Generative AI for RAG.")
 
 # --- Ensure API key exists ---
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    st.warning("⚠️ GOOGLE_API_KEY not set. Please set it in Streamlit Secrets or Environment Variables.")
-else:
-    os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+llm = GoogleGenAI(model="models/gemini-2.0-flash")
 
 
 # --- Directory to persist index ---
@@ -76,7 +73,7 @@ if uploaded_files:
         st.success("✅ Index built successfully!")
 
     # --- Google LLM via LlamaIndex ---
-    llm = GoogleGenAI(model="gemini-2.5-flash", api_key=GOOGLE_API_KEY)
+    llm = GoogleGenAI(model="gemini-2.0-flash", api_key=GOOGLE_API_KEY)
 
     query_engine = index.as_query_engine(llm=llm, similarity_top_k=3)
 
