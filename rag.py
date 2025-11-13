@@ -23,7 +23,7 @@ from llama_index.core import (
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.google import Google
 import tempfile
-
+from llama_index.llms.google import Google
 
 # --- Streamlit Page Config ---
 st.set_page_config(page_title="📚 RAG Chatbot with LlamaIndex + Google API", layout="wide")
