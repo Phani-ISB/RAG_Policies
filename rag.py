@@ -29,7 +29,7 @@ GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # Initialize LLM once
-llm = GoogleGenAI(model="models/gemini-1.5-flash", api_key=os.environ["GOOGLE_API_KEY"])
+llm = GoogleGenAI(model="models/gemini-2.0-flash", api_key=os.environ["GOOGLE_API_KEY"])
 
 # --- Directory to persist index ---
 INDEX_DIR = Path("./storage")
