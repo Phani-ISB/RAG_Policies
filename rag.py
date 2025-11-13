@@ -53,14 +53,18 @@ def load_pdfs(uploaded_files):
 
 
 # --- Build or Load Index ---
+embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
 def get_or_create_index(docs):
-    if INDEX_DIR.exists() and any(INDEX_DIR.iterdir()):
-        storage_context = StorageContext.from_defaults(persist_dir=str(INDEX_DIR))
-        index = load_index_from_storage(storage_context)
+    persist_dir = "./storage"
+    if os.path.exists(persist_dir):
+        # Load existing index
+        storage_context = StorageContext.from_defaults(persist_dir=persist_dir)
+        index = load_index_from_storage(storage_context, embed_model=embed_model)
     else:
-        embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        # Create new index
         index = VectorStoreIndex.from_documents(docs, embed_model=embed_model)
-        index.storage_context.persist(persist_dir=str(INDEX_DIR))
+        index.storage_context.persist(persist_dir=persist_dir)
     return index
 
 
