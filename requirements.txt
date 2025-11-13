@@ -1,7 +1,7 @@
 streamlit==1.39.0
-llama-index==0.11.16
-llama-index-llms-google==0.2.1
-llama-index-embeddings-huggingface==0.2.1
+llama-index
+llama-index-llms-google
+llama-index-embeddings-huggingface
 sentence-transformers==2.7.0
 faiss-cpu>=1.9.0
 google-generativeai>=0.5.4
@@ -10,3 +10,4 @@ PyPDF2==3.0.1
 pydantic>=2.7.0
 tiktoken
 chromadb
+
