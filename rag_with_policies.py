@@ -58,7 +58,7 @@ from llama_index.vector_stores import SimpleVectorStore
 # sentence-transformers for embeddings (used by HuggingFaceEmbedding)
 # google generative ai client
 try:
-    import google.generativeai as genai
+    import google.genai as genai
 except Exception:
     genai = None
 
@@ -90,13 +90,10 @@ class GoogleGenerativeLLM:
     """
 
     def __init__(self, api_key: str = None, model: str = "models/text-bison-001"):
-        if api_key is None:
-            api_key = os.environ.get("GOOGLE_API_KEY")
-        if api_key is None:
-            raise RuntimeError("Set GOOGLE_API_KEY environment variable with your Google API key")
-        if genai is None:
-            raise RuntimeError("google-generative-ai package is required. pip install google-generative-ai")
-        genai.configure(api_key=api_key)
+        self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
+        if not self.api_key :
+            print(" Warning : Set your Google API KEY")
+            self.api_key = None
         self.model = model
 
     def generate(self, prompt: str, max_output_tokens: int = 512) -> str:
