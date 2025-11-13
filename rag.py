@@ -21,9 +21,9 @@ from llama_index.core import (
     Document
 )
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.google import Google
+from llama_index.llms.google_genai import GoogleGenAI
 import tempfile
-from llama_index.llms.google import Google
+
 
 # --- Streamlit Page Config ---
 st.set_page_config(page_title="📚 RAG Chatbot with LlamaIndex + Google API", layout="wide")
@@ -76,7 +76,7 @@ if uploaded_files:
         st.success("✅ Index built successfully!")
 
     # --- Google LLM via LlamaIndex ---
-    llm = Google(model="models/text-bison-001", api_key=GOOGLE_API_KEY)
+    llm = GoogleGenAI(model="gemini-2.5-flash", api_key=GOOGLE_API_KEY)
 
     query_engine = index.as_query_engine(llm=llm, similarity_top_k=3)
 
